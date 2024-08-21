@@ -1,0 +1,73 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+#clientIdDiv {
+    margin-top: 20px;
+}
+
+#clientId,#username,#commandType {
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+#startButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #e0e0ff;
+    margin-top: 10px;
+    width: 100px;
+}
+
+#chatDiv {
+    margin-top: 20px;
+}
+
+#messageInput {
+    padding: 10px;
+    font-size: 16px;
+    width: 80%;
+}
+
+#sendButton {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+#chatBox {
+    margin-top: 20px;
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.message {
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.message.self {
+    text-align: right;
+    background-color: #e0ffe0;
+}
+
+.message.peer {
+    text-align: left;
+    background-color: #e0e0ff;
+}

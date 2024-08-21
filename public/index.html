@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Messaging</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>WebSocket Messaging</h1>
+    <div id="clientIdDiv">
+        <input type="text" id="clientId" placeholder="Enter Client ID">
+        <input type="text" id="username" placeholder="Enter usernmae"/>
+    </br>
+        <button id="startButton">Start</button>
+    </div>
+    <div id="chatDiv" class="hidden">
+        <button id="closeButton">Close Connection</button>
+        <input type="number" id="commandType" placeholder="Enter command type"/>
+        <input type="text" id="messageInput" placeholder="Enter message">
+        <button id="sendButton">Send Message</button>
+        <div id="chatBox"></div>
+    </div>
+    <script src="index.js"></script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node build/index.js",
     "dev": "set NODE_ENV=dev && ts-node-dev --interval 1500  src/index.ts",
     "build": "tsc -p .",
     "test": "react-scripts test --coverage",

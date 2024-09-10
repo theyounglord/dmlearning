@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createServer = void 0;
 var express = require("express");
 var path = require("path");
 var fs = require("fs");
@@ -11,10 +10,10 @@ var httphandler_1 = require("./class/httphandler");
 var db_1 = require("./db");
 require("dotenv").config();
 var cors = require("cors");
-var createServer = function (config) {
+exports.createServer = function (config) {
     var _a;
     var app = express();
-    (0, httphandler_1.reset)((_a = config.mode) !== null && _a !== void 0 ? _a : "");
+    httphandler_1.reset((_a = config.mode) !== null && _a !== void 0 ? _a : "");
     // logging http access
     if (config.logging != "none") {
         app.use(morgan(config.logging));
@@ -23,7 +22,7 @@ var createServer = function (config) {
     app.use(cors({ origin: "*" }));
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
-    (0, db_1.default)();
+    db_1.default();
     app.get("/ws/config", function (req, res) {
         return res.json({
             useWebSocket: config.type == "websocket",
@@ -39,8 +38,8 @@ var createServer = function (config) {
         var indexPagePath = path.join(__dirname, "../client/public/index.html");
         fs.access(indexPagePath, function (err) {
             if (err) {
-                (0, log_1.log)(log_1.LogLevel.warn, "Can't find file ' ".concat(indexPagePath));
-                res.status(404).send("Can't find file ".concat(indexPagePath));
+                log_1.log(log_1.LogLevel.warn, "Can't find file ' " + indexPagePath);
+                res.status(404).send("Can't find file " + indexPagePath);
             }
             else {
                 res.sendFile(indexPagePath);
@@ -49,5 +48,4 @@ var createServer = function (config) {
     });
     return app;
 };
-exports.createServer = createServer;
 //# sourceMappingURL=server.js.map

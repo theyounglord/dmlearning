@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RenderStreaming = void 0;
 var commander_1 = require("commander");
 var https = require("https");
 var fs = require("fs");
@@ -12,7 +11,7 @@ var RenderStreaming = /** @class */ (function () {
     function RenderStreaming(options) {
         var _this = this;
         this.options = options;
-        this.app = (0, server_1.createServer)(this.options);
+        this.app = server_1.createServer(this.options);
         // kill port process before running
         if (this.options.secure) {
             this.server = https
@@ -27,7 +26,7 @@ var RenderStreaming = /** @class */ (function () {
                 var addresses = _this.getIPAddress();
                 for (var _i = 0, addresses_1 = addresses; _i < addresses_1.length; _i++) {
                     var address = addresses_1[_i];
-                    console.log("https://".concat(address, ":").concat(port));
+                    console.log("https://" + address + ":" + port);
                 }
             });
         }
@@ -39,7 +38,7 @@ var RenderStreaming = /** @class */ (function () {
                 var addresses = _this.getIPAddress();
                 for (var _i = 0, addresses_2 = addresses; _i < addresses_2.length; _i++) {
                     var address = addresses_2[_i];
-                    console.log("http://".concat(address, ":").concat(port));
+                    console.log("http://" + address + ":" + port);
                 }
             });
         }
@@ -47,16 +46,16 @@ var RenderStreaming = /** @class */ (function () {
             console.log("Use http polling for signaling server.");
         }
         else if (this.options.type != "websocket") {
-            console.log("signaling type should be set \"websocket\" or \"http\". ".concat(this.options.type, " is not supported."));
+            console.log("signaling type should be set \"websocket\" or \"http\". " + this.options.type + " is not supported.");
             console.log("Changing signaling type to websocket.");
             this.options.type = "websocket";
         }
         if (this.options.type == "websocket") {
-            console.log("Use websocket for signaling server ws://".concat(this.getIPAddress()[0]));
+            console.log("Use websocket for signaling server ws://" + this.getIPAddress()[0]);
             //Start Websocket Signaling server
             new websocket_1.default(this.server, this.options.mode);
         }
-        console.log("start as ".concat(this.options.mode, " mode"));
+        console.log("start as " + this.options.mode + " mode");
     }
     RenderStreaming.run = function (argv) {
         var program = new commander_1.Command();

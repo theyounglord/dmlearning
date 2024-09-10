@@ -1,7 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LogLevel = void 0;
-exports.log = log;
 var isDebug = true;
 var LogLevel;
 (function (LogLevel) {
@@ -9,7 +7,7 @@ var LogLevel;
     LogLevel[LogLevel["log"] = 1] = "log";
     LogLevel[LogLevel["warn"] = 2] = "warn";
     LogLevel[LogLevel["error"] = 3] = "error";
-})(LogLevel || (exports.LogLevel = LogLevel = {}));
+})(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
 function log(level) {
     var args = [];
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -32,4 +30,5 @@ function log(level) {
         }
     }
 }
+exports.log = log;
 //# sourceMappingURL=log.js.map

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Client</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #messages {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+    #messageInput {
+      width: 80%;
+    }
+    #sendMessage {
+      width: 15%;
+    }
+    .row {
+      margin-bottom: 10px;
+    }
+    #connectionStatus {
+      font-size: 18px;
+      color: red;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Device Client</h1>
+
+  <div id="connectionStatus">Disconnected from WebSocket Server</div>
+
+  <div class="row">
+    <label for="serverAddress">Server Address: </label>
+    <input type="text" id="serverAddress" value="ws://localhost:2024/ws">
+    <label for="deviceId">Enter Device ID: </label>
+    <input type="text" id="deviceId" placeholder="Device ID">
+    <button id="connectBtn">Connect</button>
+    <button id="disconnectBtn" disabled>Disconnect</button>
+  </div>
+
+  <div id="messages"></div>
+
+  <div class="row">
+    <label for="batteryHealth">Battery Health: </label>
+    <span id="batteryHealthValue">60</span>%
+    <input type="range" id="batteryHealth" min="0" max="100" value="60" step="1">
+  </div>
+
+  <div class="row">
+    <input type="text" id="messageInput" placeholder="Enter message">
+    <button id="sendMessage">Send Message</button>
+  </div>
+
+  <script>
+    let ws;
+    const messagesDiv = document.getElementById("messages");
+    const messageInput = document.getElementById("messageInput");
+    const connectBtn = document.getElementById("connectBtn");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+    const sendMessageBtn = document.getElementById("sendMessage");
+    const batteryHealthSlider = document.getElementById("batteryHealth");
+    const batteryHealthValue = document.getElementById("batteryHealthValue");
+    const deviceIdInput = document.getElementById("deviceId");
+    const connectionStatusDiv = document.getElementById("connectionStatus");
+
+    // Helper function to log messages to the UI
+    function logMessage(message, type = "info") {
+      const msgElement = document.createElement("div");
+      msgElement.textContent = message;
+      msgElement.style.color = type === "error" ? "red" : "black";
+      messagesDiv.appendChild(msgElement);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Update battery health value on slider change and send update to WebSocket server
+    batteryHealthSlider.addEventListener("input", () => {
+      const batteryHealth = batteryHealthSlider.value;
+      batteryHealthValue.textContent = batteryHealth;
+
+      // Send battery health update over WebSocket
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        const deviceId = deviceIdInput.value || "Unknown Device";
+        ws.send(JSON.stringify({
+          type: "batteryHealth",
+          deviceId: deviceId,
+          batteryHealth: batteryHealth
+        }));
+        logMessage(`Battery health updated to: ${batteryHealth}%`);
+      }
+    });
+
+    // Connect to WebSocket server
+    connectBtn.addEventListener("click", () => {
+      const serverAddress = document.getElementById("serverAddress").value;
+      const deviceId = deviceIdInput.value || "Unknown Device";
+      const batteryHealth = batteryHealthSlider.value; // Get initial battery health
+
+      ws = new WebSocket(serverAddress);
+
+      ws.onopen = () => {
+        logMessage(`Connected to WebSocket server as Device ID: ${deviceId}`);
+        connectionStatusDiv.innerText = "Connected to WebSocket Server";
+        connectionStatusDiv.style.color = "green";
+        connectBtn.disabled = true;
+        disconnectBtn.disabled = false;
+
+        // Send device connection message along with initial battery health
+        ws.send(JSON.stringify({
+          type: "deviceConnect",
+          deviceId: deviceId,
+          batteryHealth: batteryHealth
+        }));
+      };
+
+      // Handle incoming messages from WebSocket server
+      ws.onmessage = (event) => {
+        const messageData = event.data;
+        logMessage(`Received: ${messageData}`);
+      };
+
+      // Handle WebSocket errors
+      ws.onerror = (error) => {
+        logMessage(`Error: ${error.message}`, "error");
+      };
+
+      // Handle WebSocket disconnection
+      ws.onclose = () => {
+        logMessage("Disconnected from WebSocket server.");
+        connectionStatusDiv.innerText = "Disconnected from WebSocket Server";
+        connectionStatusDiv.style.color = "red";
+        connectBtn.disabled = false;
+        disconnectBtn.disabled = true;
+      };
+    });
+
+    // Disconnect from WebSocket server
+    disconnectBtn.addEventListener("click", () => {
+      if (ws) {
+        ws.close();
+      }
+    });
+
+    // Send custom message to WebSocket server
+    sendMessageBtn.addEventListener("click", () => {
+      const message = messageInput.value;
+      const deviceId = deviceIdInput.value || "Unknown Device";
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: "message",
+          deviceId: deviceId,
+          message: message
+        }));
+        logMessage(`Sent message: ${message}`);
+        messageInput.value = "";
+      } else {
+        logMessage("WebSocket is not connected.", "error");
+      }
+    });
+  </script>
+</body>
+</html>

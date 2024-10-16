@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Client</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    #connectionStatus {
+      font-size: 18px;
+      color: red;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Device Dashboard</h1>
+
+  <div id="connectionStatus">Disconnected from WebSocket Server</div>
+
+  <table id="deviceTable">
+    <thead>
+      <tr>
+        <th>Device ID</th>
+        <th>Status</th>
+        <th>Battery Health</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Device rows will be dynamically inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    const ws = new WebSocket('ws://localhost:2024/ws');
+    const deviceTable = document.getElementById('deviceTable').getElementsByTagName('tbody')[0];
+    const connectionStatusDiv = document.getElementById("connectionStatus");
+
+    const devices = {
+      '7893987': { status: 'offline', batteryHealth: 'N/A' },
+      'DeviceID2': { status: 'offline', batteryHealth: 'N/A' },
+      'DeviceID3': { status: 'offline', batteryHealth: 'N/A' }
+    };
+
+    // Helper to update table row
+    function updateDeviceRow(deviceId, status, batteryHealth) {
+      let row = document.getElementById(deviceId);
+      if (!row) {
+        row = deviceTable.insertRow();
+        row.id = deviceId;
+        row.insertCell(0).innerText = deviceId;
+        row.insertCell(1).innerText = status;
+        row.insertCell(2).innerText = batteryHealth;
+      } else {
+        row.cells[1].innerText = status;
+        row.cells[2].innerText = batteryHealth;
+      }
+    }
+
+    // Show initial device statuses (offline by default)
+    for (const deviceId in devices) {
+      updateDeviceRow(deviceId, devices[deviceId].status, devices[deviceId].batteryHealth);
+    }
+
+    // WebSocket connection handling
+    ws.onopen = () => {
+      console.log("Connected to WebSocket server");
+      connectionStatusDiv.innerText = "Connected to WebSocket Server";
+      connectionStatusDiv.style.color = "green";
+
+      // Send dashboard connect message
+      ws.send(JSON.stringify({ type: 'dashboardConnect' }));
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'statusUpdate') {
+            updateDeviceRow(data.deviceId, data.status, data.batteryHealth || 'N/A');
+        }
+
+        if (data.type === 'batteryUpdate') {
+            updateDeviceRow(data.deviceId, 'online', data.batteryHealth);
+        }
+    };
+
+
+    ws.onerror = (error) => {
+      console.log("WebSocket Error: ", error);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+      connectionStatusDiv.innerText = "Disconnected from WebSocket Server";
+      connectionStatusDiv.style.color = "red";
+    };
+  </script>
+</body>
+</html>

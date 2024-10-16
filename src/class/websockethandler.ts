@@ -6,6 +6,49 @@ import { uuidGenerator } from "../utils/uuid-generator";
 
 let isPrivate: boolean;
 
+const WebSocket = require("ws");
+
+let dashboardClient: WebSocket | null = null; // Holds the dashboard client connection // Hold dashboard client connection
+
+function setDashboardClient(ws: WebSocket): void {
+  dashboardClient = ws;
+  console.log("Dashboard client connected.");
+}
+
+const roomID = 4567; // Room ID for the WebSocket connection
+
+// [{roomID: {deviceId: WebSocket}}]
+const rooms: Map<number, Map<string, WebSocket>> = new Map();
+
+function addClientToRoom(ws: WebSocket, deviceId: string): void {
+  if (!rooms.has(roomID)) {
+    rooms.set(roomID, new Map());
+  }
+  const roomClients = rooms.get(roomID);
+  roomClients.set(deviceId, ws);
+  console.log(`Device ${deviceId} added to Room ${roomID}`);
+}
+
+function removeClientFromRoom(deviceId: string): void {
+  const roomClients = rooms.get(roomID);
+  if (roomClients) {
+    roomClients.delete(deviceId);
+    console.log(`Device ${deviceId} removed from Room ${roomID}`);
+  }
+}
+
+function getRoomClients(): Map<string, WebSocket> {
+  return rooms.get(roomID) || new Map();
+}
+
+function broadcastToDashboard(data: any): void {
+  if (dashboardClient && dashboardClient.readyState === WebSocket.OPEN) {
+    dashboardClient.send(JSON.stringify(data));
+  } else {
+    console.log("Dashboard client not connected, cannot send update.");
+  }
+}
+
 // [{sessionId:[connectionId,...]}]
 const clients: Map<WebSocket, Set<string>> = new Map<WebSocket, Set<string>>();
 
@@ -306,4 +349,9 @@ export {
   onCommunication,
   onAknowledgement,
   onCandidate,
+  addClientToRoom,
+  removeClientFromRoom,
+  getRoomClients,
+  broadcastToDashboard,
+  setDashboardClient,
 };
